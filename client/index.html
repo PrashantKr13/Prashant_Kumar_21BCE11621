@@ -7,11 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="status">Connecting...</div>
     <div class="start">
         <p>Enter the starting positions of your characters in the following format from left to right: P1 P2 H2 P3 H1</p>
-        <form action="" onsubmit="createBoard(event)">
-            <label for="opponentId"></label>
-            <input id="opponentId" type="text">
+        <form action="" onsubmit="createConnection(event)">
             <label for="startingPlaces"></label>
             <input id="startingPlaces" type="text">
             <button type="submit">Start</button>
