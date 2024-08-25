@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Matrix Grid</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="start">
+        <p>Enter the starting positions of your characters in the following format from left to right: P1 P2 H2 P3 H1</p>
+        <form action="" onsubmit="createBoard(event)">
+            <label for="opponentId"></label>
+            <input id="opponentId" type="text">
+            <label for="startingPlaces"></label>
+            <input id="startingPlaces" type="text">
+            <button type="submit">Start</button>
+        </form>
+    </div>
+    <div id="grid-container" class="grid-container"></div>
+    <div id="button-container"></div>
+
+    <script src="main.js"></script>
+</body>
+</html>
