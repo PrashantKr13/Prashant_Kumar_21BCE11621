@@ -3,6 +3,7 @@ const server = new WebSocket.Server({ port: 8080 });
 
 let players = [];
 let playerPositions = [];
+let currentPlayerIndex = 0;
 
 server.on('connection', (ws) => {
     console.log(`A player connected`);
@@ -11,6 +12,8 @@ server.on('connection', (ws) => {
     if (players.length === 2) {
         players[0].send(JSON.stringify({ type: 'start', message: 'Player 1 connected. Waiting for Player 2...' }));
         players[1].send(JSON.stringify({ type: 'start', message: 'Player 2 connected. Game starting...' }));
+        players[currentPlayerIndex].send(JSON.stringify({ type: 'yourTurn', message: 'It\'s your turn' }));
+        players[1 - currentPlayerIndex].send(JSON.stringify({ type: 'waitTurn', message: 'Waiting for opponent\'s move' }));
     }
 
     ws.on('message', (message, isBinary) => {
@@ -38,6 +41,29 @@ server.on('connection', (ws) => {
                     }));
                 });
             }
+        }if (data.type === 'move') {
+            players.forEach(player => {
+                if (player !== ws) {
+                    player.send(JSON.stringify({
+                        type: 'move',
+                        index: data.index
+                    }));
+                }
+            });
+            currentPlayerIndex = 1 - currentPlayerIndex;
+            players[currentPlayerIndex].send(JSON.stringify({ type: 'yourTurn', message: 'It\'s your turn' }));
+            players[1 - currentPlayerIndex].send(JSON.stringify({ type: 'waitTurn', message: 'Waiting for opponent\'s move' }));
+        }
+        if (data.type === 'gameOver') {
+            const winnerMessage = 'YOU WON';
+            const loserMessage = 'YOU LOSE';
+            players.forEach((player, index) => {
+                if (player === ws) {
+                    player.send(JSON.stringify({ type: 'gameResult', message: winnerMessage }));
+                } else {
+                    player.send(JSON.stringify({ type: 'gameResult', message: loserMessage }));
+                }
+            });
         }
     });
 
