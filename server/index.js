@@ -11,8 +11,6 @@ server.on('connection', (ws) => {
     players.push(ws);
 
     if (players.length === 2) {
-        players[0].send(JSON.stringify({ type: 'start', message: 'Player 1 connected. Waiting for Player 2...' }));
-        players[1].send(JSON.stringify({ type: 'start', message: 'Player 2 connected. Game starting...' }));
         players[currentPlayerIndex].send(JSON.stringify({ type: 'yourTurn', message: 'It\'s your turn' }));
         players[1 - currentPlayerIndex].send(JSON.stringify({ type: 'waitTurn', message: 'Waiting for opponent\'s move' }));
     }
@@ -24,7 +22,6 @@ server.on('connection', (ws) => {
 
         if (data.type === 'userMessage') {
             playerPositions.push(data.message);
-
             if (playerPositions.length === 2) {
                 players[0].send(JSON.stringify({
                     type: 'enemyPositions',
@@ -34,7 +31,8 @@ server.on('connection', (ws) => {
                     type: 'enemyPositions',
                     message: playerPositions[0]
                 }));
-
+                
+                //As soon as the two players are connected and the data is shared, it starts the game for both the players
                 players.forEach(player => {
                     player.send(JSON.stringify({
                         type: 'gameStart',
@@ -42,7 +40,7 @@ server.on('connection', (ws) => {
                     }));
                 });
             }
-        }if (data.type === 'move') {
+        } if (data.type === 'move') {
             players.forEach(player => {
                 if (player !== ws) {
                     player.send(JSON.stringify({
@@ -58,6 +56,7 @@ server.on('connection', (ws) => {
         if (data.type === 'gameOver') {
             const winnerMessage = 'YOU WON';
             const loserMessage = 'YOU LOSE';
+            console.log("Game Over")
             players.forEach((player, index) => {
                 if (player === ws) {
                     player.send(JSON.stringify({ type: 'gameResult', message: winnerMessage }));
@@ -71,8 +70,9 @@ server.on('connection', (ws) => {
     //for handling disconnection requests
     ws.on('close', () => {
         console.log('A player disconnected');
-        players = players.filter(player => player !== ws);
-        playerPositions = playerPositions.slice(0, players.length);
+        const playerIndex = players.indexOf(ws);
+        players.splice(playerIndex, 1);
+        playerPositions.splice(playerIndex, 1);
         players.forEach(player => {
             player.send(JSON.stringify({ type: 'end', message: 'The other player disconnected. Game over.' }));
         });

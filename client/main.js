@@ -10,7 +10,7 @@ function createConnection(e) {
     let gameStarted = false;
     let inputValues = [];
 
-    //regex to check that the positions entered by the user are valid
+    // regex to check that the positions entered by the user are valid
     let regex = /^(?=.*\bP1\b)(?=.*\bP2\b)(?=.*\bP3\b)(?=.*\bH1\b)(?=.*\bH2\b)(?:P[1-3]\s|H[1-3]\s){4}(P[1-3]|H[1-3])$|^(?=.*\bP1\b)(?=.*\bP2\b)(?=.*\bH1\b)(?=.*\bH2\b)(?=.*\bH3\b)(?:P[1-3]\s|H[1-3]\s){4}(P[1-3]|H[1-3])$/;
     if (regex.test(inputPositions) == false) {
         alert("Please enter a valid input");
@@ -20,7 +20,7 @@ function createConnection(e) {
     let enemyValues = [];
 
     // open method of socket to create a new socket connection
-    socket.addEventListener('open', function (event) {
+    socket.addEventListener('open', function () {
         document.getElementById('status').textContent = 'Waiting for Opponent...';
         socket.send(JSON.stringify({ type: 'userMessage', message: inputPositions }));
     });
@@ -60,7 +60,17 @@ function createConnection(e) {
             isMyTurn = false;
             disableGameBoard();
         }
+    
+        // Handle the end game message
+        if (data.type === 'end') {
+            document.getElementById("status").innerText = data.message;
+            disableGameBoard();  // Disable the game board or any other necessary cleanup
+        }
     });
+    socket.addEventListener('close', function(){
+        document.getElementById("status").innerText = "The other player disconnected";
+        disableGameBoard();
+    })
 }
 
 function updateHistory(move, character) {
@@ -80,30 +90,32 @@ function enableGameBoard() {
     document.getElementById('grid-container').style.pointerEvents = 'auto';
     document.getElementById('grid-container').style.opacity = '1';
 }
-
+// send move details to the opponent
 function sendMove(index) {
     socket.send(JSON.stringify({ type: 'move', index: index }));
 }
+// start game function which is called as soon as both the players are connected
 function startGame(inputValues, enemyValues) {
     createBoard(inputValues, enemyValues);
     document.getElementsByClassName('moveHistory')[0].style.display = "block";
 }
 
 let matrix
+// function to play opponent moves
 function makeMove(indexes) {
-    console.log("enemy made the following move: " + indexes);
+    // console.log("enemy made the following move: " + indexes);
     updateHistory(indexes.substring(4), matrix[indexes[0]][indexes[1]]);
     let idiff = indexes[0] - indexes[2];
     let jdiff = indexes[1] - indexes[3];
     if (idiff === 2 && jdiff === 2) {
-        matrix[Number(indexes[2]) + 1][Number(indexes[3] + 1)] = "";
+        matrix[Number(indexes[2]) + 1][Number(indexes[3]) + 1] = "";
         document.getElementById(`${Number(indexes[2]) + 1}${Number(indexes[3]) + 1}`).innerText = ""
     } else if (idiff === 2 && jdiff === -2) {
         matrix[Number(indexes[2]) + 1][indexes[3] - 1] = "";
-        document.getElementById(`${Number(indexes[2]) + 1}${indexes[3] - 1}`).innerText = ""
+        document.getElementById(`${Number(indexes[2]) + 1}${Number(indexes[3]) - 1}`).innerText = ""
     } else if (idiff === -2 && jdiff === -2) {
         matrix[indexes[2] - 1][indexes[3] - 1] = "";
-        document.getElementById(`${indexes[2] - 1}${indexes[3] - 1}`).innerText = ""
+        document.getElementById(`${Number(indexes[2]) - 1}${Number(indexes[3]) - 1}`).innerText = ""
     } else if (idiff === -2 && jdiff === 2) {
         matrix[indexes[2] - 1][Number(indexes[3]) + 1] = "";
         document.getElementById(`${indexes[2] - 1}${Number(indexes[3]) + 1}`).innerText = ""
@@ -112,27 +124,27 @@ function makeMove(indexes) {
         document.getElementById(`${Number(indexes[2]) + 1}${indexes[3]}`).innerText = ""
     } else if (idiff === -2 && jdiff === 0) {
         matrix[indexes[2] - 1][indexes[3]] = "";
-        document.getElementById(`${indexes[2] - 1}${indexes[3]}`).innerText = ""
+        document.getElementById(`${Number(indexes[2]) - 1}${indexes[3]}`).innerText = ""
     } else if (idiff === 0 && jdiff === 2) {
         matrix[indexes[2]][Number(indexes[3]) + 1] = "";
-        document.getElementById(`${indexes[2]}${indexes[3] - 1}`).innerText = ""
+        document.getElementById(`${indexes[2]}${Number(indexes[3]) - 1}`).innerText = ""
     } else if (idiff === 0 && jdiff === -2) {
         matrix[indexes[2]][indexes[3] - 1] = "";
-        document.getElementById(`${indexes[2]}${indexes[3] - 1}`).innerText = ""
+        document.getElementById(`${indexes[2]}${Number(indexes[3]) - 1}`).innerText = ""
     }
     matrix[indexes[2]][indexes[3]] = matrix[indexes[0]][indexes[1]];
     matrix[indexes[0]][indexes[1]] = "";
     document.getElementById(`${indexes[0]}${indexes[1]}`).innerText = ""
     document.getElementById(`${indexes[2]}${indexes[3]}`).innerText = matrix[indexes[2]][indexes[3]]
 }
-
+// Called when the player moves
 function winCall() {
     socket.send(JSON.stringify({ type: 'gameOver', winner: true }));
 }
 
 //function called after successful connection to create the board using opponent's input and player inputs
 function createBoard(inputValues, enemyValues) {
-
+    document.getElementById("grid-container").innerHTML = ""
     const buttons = [
         { label: 'Button 1', class: 'button button1' },
         { label: 'Button 2', class: 'button button2' },
@@ -557,6 +569,8 @@ function createBoard(inputValues, enemyValues) {
                                         updateHistory(move, matrix[i][j]);
                                         sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 2}${j - 2}${move}`);
                                         if (matrix[i - 1][j - 1][0] == "B") {
+                                            matrix[i - 1][j - 1] = "";
+                                            document.getElementById(`${i-1}${j-1}`).innerText = "";
                                             count--;
                                             if (count == 0) {
                                                 winCall()
@@ -581,6 +595,8 @@ function createBoard(inputValues, enemyValues) {
                                         updateHistory(move, matrix[i][j]);
                                         sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 2}${j + 2}${move}`)
                                         if (matrix[i - 1][j + 1][0] == "B") {
+                                            matrix[i - 1][j + 1] = "";
+                                            document.getElementById(`${i - 1}${j + 1}`).innerText = "";
                                             count--;
                                             if (count == 0) {
                                                 winCall()
@@ -605,6 +621,8 @@ function createBoard(inputValues, enemyValues) {
                                         updateHistory(move, matrix[i][j]);
                                         sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 2}${j - 2}${move}`)
                                         if (matrix[i + 1][j - 1][0] == "B") {
+                                            matrix[i + 1][j - 1] = "";
+                                            document.getElementById(`${i + 1}${j - 1}`).innerText = "";
                                             count--;
                                             if (count == 0) {
                                                 winCall()
@@ -629,6 +647,8 @@ function createBoard(inputValues, enemyValues) {
                                         updateHistory(move, matrix[i][j]);
                                         sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 2}${j + 2}${move}`)
                                         if (matrix[i + 1][j + 1][0] == "B") {
+                                            matrix[i + 1][j + 1] = "";
+                                            document.getElementById(`${i + 1}${j + 1}`).innerText = "";
                                             count--;
                                             if (count == 0) {
                                                 winCall()
@@ -768,6 +788,7 @@ function createBoard(inputValues, enemyValues) {
             });
         }
     }
+    //Hides the start game content as soon as the board is created
     document.getElementsByClassName("start")[0].style.display = "none";
 }
 
