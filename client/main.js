@@ -336,8 +336,31 @@ function createBoard(inputValues, enemyValues) {
                         buttons.forEach((button, ind) => {
                             const moves = ["L", "R", "F", "B"]
                             const btn = document.createElement('button');
-                            btn.textContent = moves[ind];
                             btn.className = button.class;
+                            const moveText = document.createElement('span');
+                            moveText.textContent = moves[ind];
+                            moveText.style.position = 'absolute';  
+                            moveText.style.opacity = '0';       
+                            moveText.style.pointerEvents = 'none'; 
+                            btn.appendChild(moveText);
+                            const arrowImg = document.createElement('img');
+                            arrowImg.src = './arrow.png';
+                            arrowImg.style.height = '50px'
+                            arrowImg.alt = 'Arrow';
+                            arrowImg.style.verticalAlign = 'middle';
+                            if(moveText.textContent=='L'){
+                                arrowImg.style.transform = 'rotate(180deg)'
+                            }
+                            if(moveText.textContent=='R'){
+                                arrowImg.style.transform = 'rotate(0deg)'
+                            }
+                            if(moveText.textContent=='F'){
+                                arrowImg.style.transform = 'rotate(-90deg)'
+                            }
+                            if(moveText.textContent=='B'){
+                                arrowImg.style.transform = 'rotate(90deg)'
+                            }
+                            btn.appendChild(arrowImg);
                             btn.addEventListener('click', function () {
                                 let move = btn.innerText;
                                 if (move == 'L') {
@@ -450,8 +473,31 @@ function createBoard(inputValues, enemyValues) {
                         buttons.forEach((button, ind) => {
                             const moves = ["FL", "FR", "BL", "BR"]
                             const btn = document.createElement('button');
-                            btn.textContent = moves[ind];
                             btn.className = button.class;
+                            const moveText = document.createElement('span');
+                            moveText.textContent = moves[ind];
+                            moveText.style.position = 'absolute';  
+                            moveText.style.opacity = '0';       
+                            moveText.style.pointerEvents = 'none'; 
+                            btn.appendChild(moveText);
+                            const arrowImg = document.createElement('img');
+                            arrowImg.src = './arrow.png';
+                            arrowImg.style.height = '50px'
+                            arrowImg.alt = 'Arrow';
+                            arrowImg.style.verticalAlign = 'middle';
+                            if(moveText.textContent=='FL'){
+                                arrowImg.style.transform = 'rotate(-135deg)'
+                            }
+                            if(moveText.textContent=='FR'){
+                                arrowImg.style.transform = 'rotate(-45deg)'
+                            }
+                            if(moveText.textContent=='BL'){
+                                arrowImg.style.transform = 'rotate(135deg)'
+                            }
+                            if(moveText.textContent=='BR'){
+                                arrowImg.style.transform = 'rotate(45deg)'
+                            }
+                            btn.appendChild(arrowImg);
                             btn.addEventListener('click', function () {
                                 let move = btn.innerText;
                                 if (move == 'FL') {
@@ -557,10 +603,34 @@ function createBoard(inputValues, enemyValues) {
                         buttons.forEach((button, ind) => {
                             const moves = ["L", "R", "F", "B"]
                             const btn = document.createElement('button');
-                            btn.textContent = moves[ind];
                             btn.className = button.class;
+                            const moveText = document.createElement('span');
+                            moveText.textContent = moves[ind];
+                            moveText.style.position = 'absolute';  
+                            moveText.style.opacity = '0';       
+                            moveText.style.pointerEvents = 'none'; 
+                            btn.appendChild(moveText);
+                            const arrowImg = document.createElement('img');
+                            arrowImg.src = './arrow.png';
+                            arrowImg.style.height = '50px'
+                            arrowImg.alt = 'Arrow';
+                            arrowImg.style.verticalAlign = 'middle';
+                            if(moveText.textContent=='L'){
+                                arrowImg.style.transform = 'rotate(180deg)'
+                            }
+                            if(moveText.textContent=='R'){
+                                arrowImg.style.transform = 'rotate(0deg)'
+                            }
+                            if(moveText.textContent=='F'){
+                                arrowImg.style.transform = 'rotate(-90deg)'
+                            }
+                            if(moveText.textContent=='B'){
+                                arrowImg.style.transform = 'rotate(90deg)'
+                            }
+                            btn.appendChild(arrowImg);
+
                             btn.addEventListener('click', function () {
-                                let move = btn.innerText;
+                                let move = moveText.innerText;
                                 if (move == 'L') {
                                     if (j - 1 >= 0 && matrix[i][j - 1][0] != "A") {
                                         sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i}${j - 1}`);
