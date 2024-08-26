@@ -1,10 +1,11 @@
 const WebSocket = require('ws');
-const server = new WebSocket.Server({ port: 8080 });
+const server = new WebSocket.Server({ port: 3000 });
 
 let players = [];
 let playerPositions = [];
 let currentPlayerIndex = 0;
 
+//connection method which is called when a new connection connects to the server
 server.on('connection', (ws) => {
     console.log(`A player connected`);
     players.push(ws);
@@ -67,6 +68,7 @@ server.on('connection', (ws) => {
         }
     });
 
+    //for handling disconnection requests
     ws.on('close', () => {
         console.log('A player disconnected');
         players = players.filter(player => player !== ws);

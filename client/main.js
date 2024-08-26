@@ -1,13 +1,16 @@
 let socket;
 let count = 5
 let isMyTurn
-function createConnection(e){
+function createConnection(e) {
     e.preventDefault();
     const inputPositions = document.getElementById("startingPlaces").value;
-    socket = new WebSocket('ws://localhost:8080');
+    //socket initialization and server declaration to declare which server the client will make requests
+    socket = new WebSocket('ws://localhost:3000');
     let enemyPositions = "";
     let gameStarted = false;
     let inputValues = [];
+
+    //regex to check that the positions entered by the user are valid
     let regex = /^(?=.*\bP1\b)(?=.*\bP2\b)(?=.*\bP3\b)(?=.*\bH1\b)(?=.*\bH2\b)(?:P[1-3]\s|H[1-3]\s){4}(P[1-3]|H[1-3])$|^(?=.*\bP1\b)(?=.*\bP2\b)(?=.*\bH1\b)(?=.*\bH2\b)(?=.*\bH3\b)(?:P[1-3]\s|H[1-3]\s){4}(P[1-3]|H[1-3])$/;
     if (regex.test(inputPositions) == false) {
         alert("Please enter a valid input");
@@ -16,11 +19,13 @@ function createConnection(e){
     inputValues = inputPositions.split(' ');
     let enemyValues = [];
 
+    // open method of socket to create a new socket connection
     socket.addEventListener('open', function (event) {
         document.getElementById('status').textContent = 'Waiting for Opponent...';
         socket.send(JSON.stringify({ type: 'userMessage', message: inputPositions }));
     });
 
+    // message method to check for different message requests
     socket.addEventListener('message', function (event) {
         const data = JSON.parse(event.data);
 
@@ -57,54 +62,58 @@ function createConnection(e){
         }
     });
 }
+
+//disable board on opponent's turn and on game over
 function disableGameBoard() {
     document.getElementById('grid-container').style.pointerEvents = 'none';
     document.getElementById('grid-container').style.opacity = '0.5';
     document.getElementById('button-container').style.pointerEvents = 'none';
     document.getElementById('button-container').style.opacity = '0.5';
 }
-
+//enable board on player's turn
 function enableGameBoard() {
     document.getElementById('grid-container').style.pointerEvents = 'auto';
-    document.getElementById('grid-container').style.opacity = '1'; 
+    document.getElementById('grid-container').style.opacity = '1';
     document.getElementById('button-container').style.pointerEvents = 'auto';
-    document.getElementById('button-container').style.opacity = '1'; 
+    document.getElementById('button-container').style.opacity = '1';
 }
+
 function sendMove(index) {
     socket.send(JSON.stringify({ type: 'move', index: index }));
 }
 function startGame(inputValues, enemyValues) {
     createBoard(inputValues, enemyValues);
 }
+
 let matrix
-function makeMove(indexes){
-    console.log("enemy made the following move: "+indexes);
-    let idiff = indexes[0]-indexes[2];
-    let jdiff = indexes[1]-indexes[3];
-    if(idiff === 2 && jdiff === 2){
-        matrix[Number(indexes[2])+1][Number(indexes[3]+1)] = "";
-        document.getElementById(`${Number(indexes[2])+1}${Number(indexes[3])+1}`).innerText = ""
-    }else if(idiff === 2 && jdiff === -2){
-        matrix[Number(indexes[2])+1][indexes[3]-1] = "";
-        document.getElementById(`${Number(indexes[2])+1}${indexes[3]-1}`).innerText = ""
-    }else if(idiff === -2 && jdiff === -2){
-        matrix[indexes[2]-1][indexes[3]-1] = "";
-        document.getElementById(`${indexes[2]-1}${indexes[3]-1}`).innerText = ""
-    }else if(idiff === -2 && jdiff === 2){
-        matrix[indexes[2]-1][Number(indexes[3])+1] = "";
-        document.getElementById(`${indexes[2]-1}${Number(indexes[3])+1}`).innerText = ""
-    }else if(idiff === 2 && jdiff === 0){
-        matrix[Number(indexes[2])+1][indexes[3]] = "";
-        document.getElementById(`${Number(indexes[2])+1}${indexes[3]}`).innerText = ""
-    }else if(idiff === -2 && jdiff === 0){
-        matrix[indexes[2]-1][indexes[3]] = "";
-        document.getElementById(`${indexes[2]-1}${indexes[3]}`).innerText = ""
-    }else if(idiff === 0 && jdiff === 2){
-        matrix[indexes[2]][Number(indexes[3])+1] = "";
-        document.getElementById(`${indexes[2]}${indexes[3]-1}`).innerText = ""
-    }else if(idiff === 0 && jdiff === -2){
-        matrix[indexes[2]][indexes[3]-1] = "";
-        document.getElementById(`${indexes[2]}${indexes[3]-1}`).innerText = ""
+function makeMove(indexes) {
+    console.log("enemy made the following move: " + indexes);
+    let idiff = indexes[0] - indexes[2];
+    let jdiff = indexes[1] - indexes[3];
+    if (idiff === 2 && jdiff === 2) {
+        matrix[Number(indexes[2]) + 1][Number(indexes[3] + 1)] = "";
+        document.getElementById(`${Number(indexes[2]) + 1}${Number(indexes[3]) + 1}`).innerText = ""
+    } else if (idiff === 2 && jdiff === -2) {
+        matrix[Number(indexes[2]) + 1][indexes[3] - 1] = "";
+        document.getElementById(`${Number(indexes[2]) + 1}${indexes[3] - 1}`).innerText = ""
+    } else if (idiff === -2 && jdiff === -2) {
+        matrix[indexes[2] - 1][indexes[3] - 1] = "";
+        document.getElementById(`${indexes[2] - 1}${indexes[3] - 1}`).innerText = ""
+    } else if (idiff === -2 && jdiff === 2) {
+        matrix[indexes[2] - 1][Number(indexes[3]) + 1] = "";
+        document.getElementById(`${indexes[2] - 1}${Number(indexes[3]) + 1}`).innerText = ""
+    } else if (idiff === 2 && jdiff === 0) {
+        matrix[Number(indexes[2]) + 1][indexes[3]] = "";
+        document.getElementById(`${Number(indexes[2]) + 1}${indexes[3]}`).innerText = ""
+    } else if (idiff === -2 && jdiff === 0) {
+        matrix[indexes[2] - 1][indexes[3]] = "";
+        document.getElementById(`${indexes[2] - 1}${indexes[3]}`).innerText = ""
+    } else if (idiff === 0 && jdiff === 2) {
+        matrix[indexes[2]][Number(indexes[3]) + 1] = "";
+        document.getElementById(`${indexes[2]}${indexes[3] - 1}`).innerText = ""
+    } else if (idiff === 0 && jdiff === -2) {
+        matrix[indexes[2]][indexes[3] - 1] = "";
+        document.getElementById(`${indexes[2]}${indexes[3] - 1}`).innerText = ""
     }
     matrix[indexes[2]][indexes[3]] = matrix[indexes[0]][indexes[1]];
     matrix[indexes[0]][indexes[1]] = "";
@@ -112,12 +121,13 @@ function makeMove(indexes){
     document.getElementById(`${indexes[2]}${indexes[3]}`).innerText = matrix[indexes[2]][indexes[3]]
 }
 
-function winCall(){
+function winCall() {
     socket.send(JSON.stringify({ type: 'gameOver', winner: true }));
 }
 
+//function called after successful connection to create the board using opponent's input and player inputs
 function createBoard(inputValues, enemyValues) {
-    
+
     const buttons = [
         { label: 'Button 1', class: 'button button1' },
         { label: 'Button 2', class: 'button button2' },
@@ -181,137 +191,137 @@ function createBoard(inputValues, enemyValues) {
                             btn.addEventListener('click', function () {
                                 let move = btn.innerText;
                                 if (move == 'FL') {
-                                    if (i - 2 >= 0 && j-1>=0 && matrix[i-2][j-1][0] != "A" && matrix[i-2][j][0] != "A" && matrix[i-1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+2}${j-1}`);
-                                        if(matrix[i-2][j-1][0]=="B"){
+                                    if (i - 2 >= 0 && j - 1 >= 0 && matrix[i - 2][j - 1][0] != "A" && matrix[i - 2][j][0] != "A" && matrix[i - 1][j][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 2}${j - 1}`);
+                                        if (matrix[i - 2][j - 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i-2][j - 1] = matrix[i][j]
+                                        matrix[i - 2][j - 1] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i-2}${j - 1}`).innerText = matrix[i-2][j - 1]
+                                        document.getElementById(`${i - 2}${j - 1}`).innerText = matrix[i - 2][j - 1]
                                     } else {
                                         alert("Invalid Move");
                                     }
                                 }
                                 if (move == 'FR') {
-                                    if (i - 2 >= 0 && j+1<matrix.length && matrix[i-2][j+1][0] != "A" && matrix[i-2][j][0] != "A" && matrix[i-1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+2}${j+1}`);
-                                        if(matrix[i-2][j+1][0]=="B"){
+                                    if (i - 2 >= 0 && j + 1 < matrix.length && matrix[i - 2][j + 1][0] != "A" && matrix[i - 2][j][0] != "A" && matrix[i - 1][j][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 2}${j + 1}`);
+                                        if (matrix[i - 2][j + 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i-2][j + 1] = matrix[i][j]
+                                        matrix[i - 2][j + 1] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i-2}${j + 1}`).innerText = matrix[i-2][j + 1]
+                                        document.getElementById(`${i - 2}${j + 1}`).innerText = matrix[i - 2][j + 1]
                                     } else {
                                         alert("Invalid Move");
                                     }
                                 }
                                 if (move == 'BL') {
-                                    if (i + 2 <matrix.length && j-1>=0 && matrix[i+2][j-1][0] != "A" && matrix[i+2][j][0] != "A" && matrix[i+1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-2}${j-1}`);
-                                        if(matrix[i+2][j-1][0]=="B"){
+                                    if (i + 2 < matrix.length && j - 1 >= 0 && matrix[i + 2][j - 1][0] != "A" && matrix[i + 2][j][0] != "A" && matrix[i + 1][j][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 2}${j - 1}`);
+                                        if (matrix[i + 2][j - 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i+2][j - 1] = matrix[i][j]
+                                        matrix[i + 2][j - 1] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i+2}${j - 1}`).innerText = matrix[i+2][j - 1]
+                                        document.getElementById(`${i + 2}${j - 1}`).innerText = matrix[i + 2][j - 1]
                                     } else {
                                         alert("Invalid Move");
                                     }
                                 }
                                 if (move == 'BR') {
-                                    if (i + 2 < matrix.length && j+1<matrix.length && matrix[i+2][j+1][0] != "A" && matrix[i+2][j][0] != "A" && matrix[i+1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-2}${j+1}`);
-                                        if(matrix[i+2][j+1][0]=="B"){
+                                    if (i + 2 < matrix.length && j + 1 < matrix.length && matrix[i + 2][j + 1][0] != "A" && matrix[i + 2][j][0] != "A" && matrix[i + 1][j][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 2}${j + 1}`);
+                                        if (matrix[i + 2][j + 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i+2][j + 1] = matrix[i][j]
+                                        matrix[i + 2][j + 1] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i+2}${j + 1}`).innerText = matrix[i+2][j + 1]
+                                        document.getElementById(`${i + 2}${j + 1}`).innerText = matrix[i + 2][j + 1]
                                     } else {
                                         alert("Invalid Move");
                                     }
                                 }
                                 if (move == 'RF') {
-                                    if (i - 1 >= 0 && j+2<matrix.length && matrix[i-1][j+2][0] != "A" && matrix[i][j+2][0] != "A" && matrix[i][j+1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+1}${j+2}`);
-                                        if(matrix[i-1][j+2][0]=="B"){
+                                    if (i - 1 >= 0 && j + 2 < matrix.length && matrix[i - 1][j + 2][0] != "A" && matrix[i][j + 2][0] != "A" && matrix[i][j + 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 1}${j + 2}`);
+                                        if (matrix[i - 1][j + 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i-1][j + 2] = matrix[i][j]
+                                        matrix[i - 1][j + 2] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i-1}${j+2}`).innerText = matrix[i-1][j+2]
+                                        document.getElementById(`${i - 1}${j + 2}`).innerText = matrix[i - 1][j + 2]
                                     } else {
                                         alert("Invalid Move");
                                     }
                                 }
                                 if (move == 'RB') {
-                                    if (i + 1 <matrix.length && j+2<matrix.length && matrix[i+1][j+2][0] != "A" && matrix[i][j+2][0] != "A" && matrix[i][j+1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-1}${j+2}`);
-                                        if(matrix[i+1][j+2][0]=="B"){
+                                    if (i + 1 < matrix.length && j + 2 < matrix.length && matrix[i + 1][j + 2][0] != "A" && matrix[i][j + 2][0] != "A" && matrix[i][j + 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 1}${j + 2}`);
+                                        if (matrix[i + 1][j + 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i+1][j + 2] = matrix[i][j]
+                                        matrix[i + 1][j + 2] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i+1}${j+2}`).innerText = matrix[i+1][j+2]
+                                        document.getElementById(`${i + 1}${j + 2}`).innerText = matrix[i + 1][j + 2]
                                     } else {
                                         alert("Invalid Move");
                                     }
                                 }
                                 if (move == 'LF') {
-                                    if (i - 1 >= 0 && j-2>=0 && matrix[i-1][j-2][0] != "A" && matrix[i][j-2][0] != "A" && matrix[i][j-1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+1}${j-2}`);
-                                        if(matrix[i-1][j-2][0]=="B"){
+                                    if (i - 1 >= 0 && j - 2 >= 0 && matrix[i - 1][j - 2][0] != "A" && matrix[i][j - 2][0] != "A" && matrix[i][j - 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 1}${j - 2}`);
+                                        if (matrix[i - 1][j - 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i-1][j - 2] = matrix[i][j]
+                                        matrix[i - 1][j - 2] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i-1}${j-2}`).innerText = matrix[i-1][j-2]
+                                        document.getElementById(`${i - 1}${j - 2}`).innerText = matrix[i - 1][j - 2]
                                     } else {
                                         alert("Invalid Move");
                                     }
                                 }
                                 if (move == 'LB') {
-                                    if (i + 1 <matrix.length && j-2>=0 && matrix[i+1][j-2][0] != "A" && matrix[i][j-2][0] != "A" && matrix[i][j-1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-1}${j-2}`);
-                                        if(matrix[i+1][j-2][0]=="B"){
+                                    if (i + 1 < matrix.length && j - 2 >= 0 && matrix[i + 1][j - 2][0] != "A" && matrix[i][j - 2][0] != "A" && matrix[i][j - 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 1}${j - 2}`);
+                                        if (matrix[i + 1][j - 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        matrix[i+1][j - 2] = matrix[i][j]
+                                        matrix[i + 1][j - 2] = matrix[i][j]
                                         matrix[i][j] = ""
                                         document.getElementById(`${i}${j}`).innerText = matrix[i][j]
-                                        document.getElementById(`${i+1}${j-2}`).innerText = matrix[i+1][j-2]
+                                        document.getElementById(`${i + 1}${j - 2}`).innerText = matrix[i + 1][j - 2]
                                     } else {
                                         alert("Invalid Move");
                                     }
@@ -332,18 +342,18 @@ function createBoard(inputValues, enemyValues) {
                                 let move = btn.innerText;
                                 if (move == 'L') {
                                     if (j - 2 >= 0 && matrix[i][j - 2][0] != "A" && matrix[i][j - 1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i}${j-2}`);
-                                        if(matrix[i][j-1][0]=="B"){
-                                            matrix[i][j-1]="";
-                                            document.getElementById(`${i}${j-1}`).innerText = "";
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i}${j - 2}`);
+                                        if (matrix[i][j - 1][0] == "B") {
+                                            matrix[i][j - 1] = "";
+                                            document.getElementById(`${i}${j - 1}`).innerText = "";
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i][j-2][0]=="B"){
+                                        if (matrix[i][j - 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -357,18 +367,18 @@ function createBoard(inputValues, enemyValues) {
                                 }
                                 if (move == 'R') {
                                     if (j + 2 < matrix.length && matrix[i][j + 2][0] != "A" && matrix[i][j + 1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i}${j+2}`)
-                                        if(matrix[i][j+1][0]=="B"){
-                                            matrix[i][j+1]="";
-                                            document.getElementById(`${i}${j+1}`).innerText = "";
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i}${j + 2}`)
+                                        if (matrix[i][j + 1][0] == "B") {
+                                            matrix[i][j + 1] = "";
+                                            document.getElementById(`${i}${j + 1}`).innerText = "";
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i][j+2][0]=="B"){
+                                        if (matrix[i][j + 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -381,19 +391,19 @@ function createBoard(inputValues, enemyValues) {
                                     }
                                 }
                                 if (move == 'F') {
-                                    if (i - 2 >= 0 && matrix[i - 2][j][0] != "A" && matrix[i-1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+2}${j}`)
-                                        if(matrix[i-1][j][0]=="B"){
-                                            matrix[i-1][j]="";
-                                            document.getElementById(`${i-1}${j}`).innerText = "";
+                                    if (i - 2 >= 0 && matrix[i - 2][j][0] != "A" && matrix[i - 1][j][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 2}${j}`)
+                                        if (matrix[i - 1][j][0] == "B") {
+                                            matrix[i - 1][j] = "";
+                                            document.getElementById(`${i - 1}${j}`).innerText = "";
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i-2][j][0]=="B"){
+                                        if (matrix[i - 2][j][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -406,19 +416,19 @@ function createBoard(inputValues, enemyValues) {
                                     }
                                 }
                                 if (move == 'B') {
-                                    if (i + 2 < matrix.length && matrix[i + 2][j][0] != "A" && matrix[i+1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-2}${j}`)
-                                        if(matrix[i+1][j][0]=="B"){
-                                            matrix[i+1][j]="";
-                                            document.getElementById(`${i+1}${j}`).innerText = "";
+                                    if (i + 2 < matrix.length && matrix[i + 2][j][0] != "A" && matrix[i + 1][j][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 2}${j}`)
+                                        if (matrix[i + 1][j][0] == "B") {
+                                            matrix[i + 1][j] = "";
+                                            document.getElementById(`${i + 1}${j}`).innerText = "";
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i+2][j][0]=="B"){
+                                        if (matrix[i + 2][j][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -445,17 +455,17 @@ function createBoard(inputValues, enemyValues) {
                             btn.addEventListener('click', function () {
                                 let move = btn.innerText;
                                 if (move == 'FL') {
-                                    if (j - 2 >= 0 && i - 2 >= 0 && matrix[i - 2][j - 2][0] != "A" && matrix[i-1][j-1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+2}${j-2}`);
-                                        if(matrix[i-1][j-1][0]=="B"){
+                                    if (j - 2 >= 0 && i - 2 >= 0 && matrix[i - 2][j - 2][0] != "A" && matrix[i - 1][j - 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 2}${j - 2}`);
+                                        if (matrix[i - 1][j - 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i-2][j-2][0]=="B"){
+                                        if (matrix[i - 2][j - 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -468,17 +478,17 @@ function createBoard(inputValues, enemyValues) {
                                     }
                                 }
                                 if (move == 'FR') {
-                                    if (j + 2 < matrix.length && i - 2 >= 0 && matrix[i - 2][j + 2] != "A" && matrix[i-1][j + 1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+2}${j+2}`)
-                                        if(matrix[i-1][j+1][0]=="B"){
+                                    if (j + 2 < matrix.length && i - 2 >= 0 && matrix[i - 2][j + 2] != "A" && matrix[i - 1][j + 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 2}${j + 2}`)
+                                        if (matrix[i - 1][j + 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i-2][j+2][0]=="B"){
+                                        if (matrix[i - 2][j + 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -491,17 +501,17 @@ function createBoard(inputValues, enemyValues) {
                                     }
                                 }
                                 if (move == 'BL') {
-                                    if (i + 2 < matrix.length && j - 2 >= 0 && matrix[i + 2][j - 2][0] != "A" && matrix[i+1][j - 1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-2}${j-2}`)
-                                        if(matrix[i+1][j-1][0]=="B"){
+                                    if (i + 2 < matrix.length && j - 2 >= 0 && matrix[i + 2][j - 2][0] != "A" && matrix[i + 1][j - 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 2}${j - 2}`)
+                                        if (matrix[i + 1][j - 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i+2][j-2][0]=="B"){
+                                        if (matrix[i + 2][j - 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -514,17 +524,17 @@ function createBoard(inputValues, enemyValues) {
                                     }
                                 }
                                 if (move == 'BR') {
-                                    if (i + 2 < matrix.length && j + 2 < matrix.length && matrix[i + 2][j + 2][0] != "A" && matrix[i+1][j + 1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-2}${j+2}`)
-                                        if(matrix[i+1][j+1][0]=="B"){
+                                    if (i + 2 < matrix.length && j + 2 < matrix.length && matrix[i + 2][j + 2][0] != "A" && matrix[i + 1][j + 1][0] != "A") {
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 2}${j + 2}`)
+                                        if (matrix[i + 1][j + 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
-                                        if(matrix[i+2][j+2][0]=="B"){
+                                        if (matrix[i + 2][j + 2][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -553,10 +563,10 @@ function createBoard(inputValues, enemyValues) {
                                 let move = btn.innerText;
                                 if (move == 'L') {
                                     if (j - 1 >= 0 && matrix[i][j - 1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i}${j-1}`);
-                                        if(matrix[i][j-1][0]=="B"){
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i}${j - 1}`);
+                                        if (matrix[i][j - 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -570,10 +580,10 @@ function createBoard(inputValues, enemyValues) {
                                 }
                                 if (move == 'R') {
                                     if (j + 1 < matrix.length && matrix[i][j + 1][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i}${j+1}`)
-                                        if(matrix[i][j+1][0]=="B"){
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i}${j + 1}`)
+                                        if (matrix[i][j + 1][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -587,10 +597,10 @@ function createBoard(inputValues, enemyValues) {
                                 }
                                 if (move == 'F') {
                                     if (i - 1 >= 0 && matrix[i - 1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i+1}${j}`)
-                                        if(matrix[i-1][j][0]=="B"){
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i + 1}${j}`)
+                                        if (matrix[i - 1][j][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
@@ -604,10 +614,10 @@ function createBoard(inputValues, enemyValues) {
                                 }
                                 if (move == 'B') {
                                     if (i + 1 < matrix.length && matrix[i + 1][j][0] != "A") {
-                                        sendMove(`${matrix.length-1-i}${j}${matrix.length-1-i-1}${j}`)
-                                        if(matrix[i+1][j][0]=="B"){
+                                        sendMove(`${matrix.length - 1 - i}${j}${matrix.length - 1 - i - 1}${j}`)
+                                        if (matrix[i + 1][j][0] == "B") {
                                             count--;
-                                            if(count==0){
+                                            if (count == 0) {
                                                 winCall()
                                             }
                                         }
