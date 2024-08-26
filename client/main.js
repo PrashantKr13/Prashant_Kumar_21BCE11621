@@ -67,15 +67,14 @@ function createConnection(e) {
 function disableGameBoard() {
     document.getElementById('grid-container').style.pointerEvents = 'none';
     document.getElementById('grid-container').style.opacity = '0.5';
-    document.getElementById('button-container').style.pointerEvents = 'none';
-    document.getElementById('button-container').style.opacity = '0.5';
+    document.getElementById('button-container').innerHTML = "";
 }
 //enable board on player's turn
 function enableGameBoard() {
     document.getElementById('grid-container').style.pointerEvents = 'auto';
     document.getElementById('grid-container').style.opacity = '1';
-    document.getElementById('button-container').style.pointerEvents = 'auto';
-    document.getElementById('button-container').style.opacity = '1';
+    // document.getElementById('button-container').style.pointerEvents = 'auto';
+    // document.getElementById('button-container').style.opacity = '1';
 }
 
 function sendMove(index) {
@@ -186,8 +185,43 @@ function createBoard(inputValues, enemyValues) {
                         h3buttons.forEach((button, ind) => {
                             const moves = ["FL", "FR", "BL", "BR", "RF", "RB", "LF", "LB"]
                             const btn = document.createElement('button');
-                            btn.textContent = moves[ind];
                             btn.className = button.class;
+                            const moveText = document.createElement('span');
+                            moveText.textContent = moves[ind];
+                            moveText.style.position = 'absolute';  
+                            moveText.style.opacity = '0';       
+                            moveText.style.pointerEvents = 'none'; 
+                            btn.appendChild(moveText);
+                            const arrowImg = document.createElement('img');
+                            arrowImg.src = './hero3.png';
+                            arrowImg.style.height = '35px'
+                            arrowImg.alt = 'Arrow';
+                            arrowImg.style.verticalAlign = 'middle';
+                            if(moveText.textContent=='FL'){
+                                arrowImg.style.transform = 'rotate(0deg)'
+                            }
+                            if(moveText.textContent=='FR'){
+                                arrowImg.style.transform = 'scaleX(-1)'
+                            }
+                            if(moveText.textContent=='BL'){
+                                arrowImg.style.transform = 'rotate(180deg) scaleX(-1)'
+                            }
+                            if(moveText.textContent=='BR'){
+                                arrowImg.style.transform = 'rotate(180deg)'
+                            }
+                            if(moveText.textContent=='RF'){
+                                arrowImg.style.transform = 'rotate(90deg)'
+                            }
+                            if(moveText.textContent=='RB'){
+                                arrowImg.style.transform = 'rotate(90deg) scaleX(-1)'
+                            }
+                            if(moveText.textContent=='LF'){
+                                arrowImg.style.transform = 'rotate(-90deg) scaleX(-1)'
+                            }
+                            if(moveText.textContent=='LB'){
+                                arrowImg.style.transform = 'rotate(-90deg)'
+                            }
+                            btn.appendChild(arrowImg);
                             btn.addEventListener('click', function () {
                                 let move = btn.innerText;
                                 if (move == 'FL') {
@@ -345,7 +379,7 @@ function createBoard(inputValues, enemyValues) {
                             btn.appendChild(moveText);
                             const arrowImg = document.createElement('img');
                             arrowImg.src = './arrow.png';
-                            arrowImg.style.height = '50px'
+                            arrowImg.style.height = '40px'
                             arrowImg.alt = 'Arrow';
                             arrowImg.style.verticalAlign = 'middle';
                             if(moveText.textContent=='L'){
@@ -482,7 +516,7 @@ function createBoard(inputValues, enemyValues) {
                             btn.appendChild(moveText);
                             const arrowImg = document.createElement('img');
                             arrowImg.src = './arrow.png';
-                            arrowImg.style.height = '50px'
+                            arrowImg.style.height = '40px'
                             arrowImg.alt = 'Arrow';
                             arrowImg.style.verticalAlign = 'middle';
                             if(moveText.textContent=='FL'){
@@ -612,7 +646,7 @@ function createBoard(inputValues, enemyValues) {
                             btn.appendChild(moveText);
                             const arrowImg = document.createElement('img');
                             arrowImg.src = './arrow.png';
-                            arrowImg.style.height = '50px'
+                            arrowImg.style.height = '40px'
                             arrowImg.alt = 'Arrow';
                             arrowImg.style.verticalAlign = 'middle';
                             if(moveText.textContent=='L'){
