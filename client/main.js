@@ -101,7 +101,7 @@ function startGame(inputValues, enemyValues) {
 }
 
 let matrix
-// function to play opponent moves
+// function to update board based on opponent move
 function makeMove(indexes) {
     // console.log("enemy made the following move: " + indexes);
     updateHistory(indexes.substring(4), matrix[indexes[0]][indexes[1]]);
