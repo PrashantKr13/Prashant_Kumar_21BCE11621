@@ -69,7 +69,7 @@ function createConnection(e) {
     });
     socket.addEventListener('close', function(event){
         if(event.code == 1000){
-            document.getElementById("status").innerText = "Server is full";
+            document.getElementById("status").innerText = event.reason;
         }else{
             document.getElementById("status").innerText = "The other player disconnected";
             disableGameBoard();
