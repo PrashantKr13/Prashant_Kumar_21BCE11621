@@ -8,6 +8,10 @@ let currentPlayerIndex = 0;
 //connection method which is called when a new connection connects to the server
 server.on('connection', (ws) => {
     console.log(`A player connected`);
+    if(players.length === 2){
+        ws.close(1000, "Server is full");
+        return;
+    }
     players.push(ws);
 
     if (players.length === 2) {

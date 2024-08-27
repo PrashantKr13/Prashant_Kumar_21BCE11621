@@ -67,9 +67,13 @@ function createConnection(e) {
             disableGameBoard();  // Disable the game board or any other necessary cleanup
         }
     });
-    socket.addEventListener('close', function(){
-        document.getElementById("status").innerText = "The other player disconnected";
-        disableGameBoard();
+    socket.addEventListener('close', function(event){
+        if(event.code == 1000){
+            document.getElementById("status").innerText = "Server is full";
+        }else{
+            document.getElementById("status").innerText = "The other player disconnected";
+            disableGameBoard();
+        }
     })
 }
 
